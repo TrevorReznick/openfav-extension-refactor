@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenFavs</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div id="header">
+      <img src="assets/logo.svg" alt="OpenFavs" class="logo">
+      <h1>OpenFavs</h1>
+    </div>
+
+    <div id="content">
+      <!-- Login State -->
+      <div id="loginState" class="state hidden">
+        <h2>Welcome to OpenFavs</h2>
+        <p>Please login to save your favorite websites</p>
+        <button id="loginButton" class="btn btn-primary">
+          <span class="icon">👤</span>
+          Login
+        </button>
+      </div>
+
+      <!-- Save State -->
+      <div id="saveState" class="state hidden">
+        <div class="url-preview">
+          <img id="siteFavicon" class="favicon" src="" alt="Site Icon">
+          <div class="url-info">
+            <h3 id="siteTitle" class="ellipsis"></h3>
+            <p id="siteUrl" class="ellipsis"></p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Environment</label>
+          <div class="environment-buttons">
+            <button class="env-btn" data-env="production">
+              <span class="icon">🚀</span>
+              Production
+            </button>
+            <button class="env-btn" data-env="develop">
+              <span class="icon">⚙️</span>
+              Develop
+            </button>
+            <button class="env-btn" data-env="test">
+              <span class="icon">🧪</span>
+              Test
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" class="select">
+            <option value="">Select a category...</option>
+          </select>
+        </div>
+
+        <button id="saveButton" class="btn btn-primary">
+          <span class="icon">💾</span>
+          Save Website
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="state">
+        <div class="loader"></div>
+        <p>Processing website...</p>
+      </div>
+
+      <!-- Success State -->
+      <div id="successState" class="state hidden">
+        <div class="success-icon">✓</div>
+        <h2>Website Saved!</h2>
+        <p>Your website has been successfully saved</p>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
