@@ -75,7 +75,7 @@ Object.entries(states).forEach(([name, element]) => {
     if (!element) {
         logger.error(`Missing state element: ${name}`);
     }
-})
+});
 
 function showState(stateName) {
 
@@ -97,10 +97,8 @@ function showState(stateName) {
 
 // Debug cookies function
 async function debugCookies() {
-
-    logger.log('Debugging cookies...')
-
-    
+  
+  logger.log('Debugging cookies...')
 
     
     

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "OpenFavs",
-  "version": "1.0",
+  "name": "OpenFav",
+  "version": "0.1",
   "description": "Save and categorize your favorite websites",
   "permissions": [
     "activeTab",
