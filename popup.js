@@ -57,6 +57,15 @@ const logger = {
     info: (...args) => console.info('[INFO]:', ...args)
 }
 
+/* @@ state management @@ */
+
+/*
+showState('login')
+showState('loading')
+showState('success')
+showState('save')
+*/
+
 const states = {
   login: document.getElementById('loginState'),
   save: document.getElementById('saveState'),
@@ -64,7 +73,34 @@ const states = {
   success: document.getElementById('successState')
 }
 
+
+Object.entries(states).forEach(([name, element]) => {
+  if (!element) {
+      logger.error(`Missing state element: ${name}`);
+  }
+})
+
+function showState(stateName) {
+
+  logger.log(`Changing state to: ${stateName}`)
+  
+  if (!states[stateName]) {
+      logger.error(`Invalid state name: ${stateName}`)
+      return
+  }
+  
+  Object.entries(states).forEach(([name, state]) => {
+      state.classList.add('hidden')
+      logger.log(`${name} state hidden`)
+  })
+  
+  states[stateName].classList.remove('hidden')
+  logger.log(`${stateName} state shown`)
+}
+
 /* @@ test @@ */
+
+
 
       
 
@@ -73,31 +109,18 @@ const states = {
 logger.log('Initializing global variables:', { user_id, id })
 logger.log('Initial siteObj state:', siteObj)
 
-document.addEventListener('DOMContentLoaded', async () => {
-
-  logger.log('DOM', 'started app')
-
-  if (hasCompositeClasses('loadingState', ['loader', 'hidden'])) {
-    logger.log('Il loader è nascosto.')
-  } else {
-    logger.log('Il loader non è nascosto.')
-  }
-
-  if (hasCompositeClasses('saveState', ['state', 'hidden'])) {
-    console.log('Lo stato di salvataggio è nascosto.');
-  } else {
-    console.log('Lo stato di salvataggio non è nascosto.');
-  }
-
-  if (hasCompositeClasses('loginState', ['state', 'hidden'])) {
-    console.log('Lo stato di login è nascosto.');
-  } else {
-    console.log('Lo stato di login non è nascosto.');
-  }
-})
-
 /* @@ core code @@ */
 
+document.addEventListener('DOMContentLoaded', async () => {
+
+  logger.log('dom', 'dom loaded')
+  //appState()
+  const isAuthenticated = await checkAuth()
+  logger.log('isAuthenticated', isAuthenticated)
+  showState('login')
+  //appState()
+  
+})
 
 
 /* @@ auth @@ */
@@ -121,7 +144,29 @@ async function checkAuth() {
 
 /* @@ utils @@ */
 
-function listClassesAndIds() {
+function debugAppState () {
+
+  if (hasCompositeClasses('loadingState', ['loader', 'hidden'])) {
+    logger.log('loader: inactive')
+  } else {
+    logger.log('loader: active')
+  }
+
+  if (hasCompositeClasses('saveState', ['state', 'hidden'])) {
+    logger.log('save: inactive');
+  } else {
+    logger.log('save: active');
+  }
+
+  if (hasCompositeClasses('loginState', ['state', 'hidden'])) {
+    logger.log('login: inactive');
+  } else {
+    logger.log('login: active');
+  }
+
+}
+
+function debugDomElements() {
   // Ottieni tutti gli elementi del DOM
   const allElements = document.querySelectorAll('*')
   
@@ -158,9 +203,11 @@ function listClassesAndIds() {
   const compositeClassesArray = Array.from(compositeClassesSet)
 
   // Stampa i risultati
+  logger.log('inspection dom...')
   console.log('Classes:', classesArray)
   console.log('IDs:', idsArray)
   console.log('Composite Classes:', compositeClassesArray)
+  logger.log('end dom inspection')
 }
 
 // Funzione per generare tutte le possibili combinazioni di classi
@@ -205,8 +252,7 @@ function hasCompositeClasses(elementId, classes) {
 }
 
 // Esegui la funzione listClassesAndIds indipendentemente dalla presenza di saveButton
-listClassesAndIds();
-
+debugDomElements()
 /*
 document.addEventListener('DOMContentLoaded', () => {
 
