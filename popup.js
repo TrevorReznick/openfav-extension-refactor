@@ -109,17 +109,41 @@ function showState(stateName) {
 logger.log('Initializing global variables:', { user_id, id })
 logger.log('Initial siteObj state:', siteObj)
 
+chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+
+  const activeTab = tabs[0]
+  const url = activeTab.url
+
+  const isAuthenticated = await checkAuth()
+
+  if (isAuthenticated) {
+
+    showState('save')
+    logger.log('authenticated')
+    return false
+
+  } else {
+    logger.log('not authenticated!')
+    debugCookies()
+    showState('login')
+    handleBtnEvents()
+    
+  }
+  //logger.log('isAuthenticated', isAuthenticated)
+  
+  //appState()
+
+})
+
+
 /* @@ core code @@ */
 
 document.addEventListener('DOMContentLoaded', async () => {
 
   logger.log('dom', 'dom loaded')
+  //debugCookies()
   //appState()
-  const isAuthenticated = await checkAuth()
-  logger.log('isAuthenticated', isAuthenticated)
-  showState('login')
-  //appState()
-  
+    
 })
 
 
@@ -140,9 +164,108 @@ async function checkAuth() {
   })
 }
 
+function handleBtnEvents() {
+
+  const envButtons = document.querySelectorAll('.env-btn')
+  logger.log(`Found ${envButtons.length} environment buttons`)
+
+  envButtons.forEach(button => {
+    button.addEventListener('click', () => {
+
+      const env = button.dataset.env
+
+      logger.log(`Environment selected: ${env}`);
+        
+      if (!env) {
+        logger.error('Invalid environment data attribute')
+            return
+      }        
+      envButtons.forEach(btn => btn.classList.remove('active'))
+      button.classList.add('active')
+      siteObj.environment = env        
+      logger.log('Updated siteObj environment:', siteObj.environment)
+    })
+  })
+
+  document.getElementById('saveButton')?.addEventListener('click', async () => {
+
+    logger.info('Save operation started')
+    
+    if (!siteObj.environment) {
+      
+      logger.warn('No environment selected')
+      alert('Please select an environment')
+      return
+    }
+
+    //showState('loading')
+
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+
+      if (!tab?.url) {
+        throw new Error('Cannot get current tab URL')
+      }
+      logger.log('Processing URL:', tab.url)
+
+      showState('success')
+
+      setTimeout(() => {
+        logger.log('Closing popup window')
+        window.close()
+      }, 2000)
+    } catch (error) {
+      logger.error('Save operation failed:', error)
+      alert(`Error saving website: ${error.message}`)
+      showState('save')
+    }
+  })
+
+  document.getElementById('loginButton')?.addEventListener('click', () => {
+
+    logger.log('Login button clicked')
+    
+    try {
+
+      chrome.tabs.create({ url: _url + '/login' })
+      window.close()
+
+    } catch (error) {
+
+      logger.error('Failed to redirect to login:', error)
+
+    }
+  })
+}
+
 
 
 /* @@ utils @@ */
+
+async function debugCookies() {
+
+  logger.log('Debugging cookies...') 
+  
+  try {
+      const allCookies = await chrome.cookies.getAll({ url: _url})
+
+      logger.log('All cookies:', allCookies)
+      
+      const relevantCookies = allCookies.filter(cookie => 
+          cookie.name.includes('sb-') ||
+          cookie.name.includes('session') ||
+          cookie.name.includes('auth')
+      )
+      
+      logger.log('Relevant auth cookies:', relevantCookies)
+      
+      return relevantCookies
+
+  } catch (error) {
+      logger.error('Cookie debug failed:', error)
+      return []
+  }
+}
 
 function debugAppState () {
 
