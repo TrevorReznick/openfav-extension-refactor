@@ -100,14 +100,14 @@ function showState(stateName) {
 
 /* @@ test @@ */
 
-
-
-      
+const uuid = generateUUID()
+logger.info('uuid', uuid)
 
 /* @@ debug @@ */
 
-logger.log('Initializing global variables:', { user_id, id })
-logger.log('Initial siteObj state:', siteObj)
+//logger.log('Initializing global variables:', { user_id, id })
+
+//logger.log('Initial siteObj state:', siteObj)
 
 chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
 
@@ -119,11 +119,13 @@ chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
   if (isAuthenticated) {
 
     showState('save')
-    logger.log('authenticated')
+
+    logger.info('authenticated')
+
     return false
 
   } else {
-    logger.log('not authenticated!')
+    logger.info('not authenticated!')
     debugCookies()
     showState('login')
     handleBtnEvents()
@@ -141,7 +143,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
 document.addEventListener('DOMContentLoaded', async () => {
 
   logger.log('dom', 'dom loaded')
-  //debugCookies()
+  debugCookies()
   //appState()
     
 })
@@ -241,6 +243,14 @@ function handleBtnEvents() {
 
 
 /* @@ utils @@ */
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c == 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
 
 async function debugCookies() {
 
