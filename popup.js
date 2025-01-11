@@ -7,9 +7,13 @@ const _url = api_url_prod
 const sessionAuthUrl = _url + '/api/v1/auth/signin'
 const YOUR_TOKEN = '89773db3-7863-460c-ad3c-6abd0db43f1c'
 const API_URL = 'https://vnavarra.nuvolaris.dev/api/my/openfavs/classify?url='
+const NODE_REDIS_API_URL = 'https://openfav-node.fly.dev/api'
+const REDIS_SESSION_API_URL = `${NODE_REDIS_API_URL}/tokens`
+
 
 let user_id = null
 let id = null
+let access_token = null
 
 const DEBUG = true
 
@@ -122,6 +126,27 @@ chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
 
     logger.info('authenticated')
 
+    try {
+
+      const sessionInfo = await getSessionInfo()
+      user_id = sessionInfo.session.user.id
+      console.log(`Authenticated as user: ${user_id}`)
+    } catch(e) {
+
+      logger.error(e)
+
+    } finally {
+
+      user_id = await getRedisUserId(access_token)
+
+      //logger.log(access_token)
+
+      logger.log(`Redis Authenticated user: ${user_id}`)
+      logger.log('Initializing global variables:', { user_id, id })
+
+    }
+    
+
     return false
 
   } else {
@@ -157,6 +182,7 @@ async function checkAuth() {
       let isAuthenticated = false
       for (let i = 0; i < cookies.length; i++) {
         if (cookies[i].name === 'sb-access-token') {
+          access_token =  cookies[i].value
           isAuthenticated = true
           break
         }
@@ -164,6 +190,44 @@ async function checkAuth() {
       resolve(isAuthenticated)
     })
   })
+}
+
+async function getSessionInfo() {
+  const response = await fetch(sessionAuthUrl, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  if (!response.ok) {
+    throw new Error('Errore nel recupero delle informazioni di sessione')
+  }
+  return response.json()
+}
+
+async function getRedisUserId(accessToken) {
+
+  try {
+    logger.log('redis url', `${REDIS_SESSION_API_URL}/access/${accessToken}`)
+    const response = await fetch(`${REDIS_SESSION_API_URL}/access/${accessToken}`, {
+
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get userId from access token');
+    }
+
+    const data = await response.json()
+    return data.userId
+  } catch (error) {
+
+    logger.error('Failed to get userId from redis:', error)
+    return null
+  }
 }
 
 function handleBtnEvents() {
