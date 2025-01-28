@@ -141,7 +141,7 @@ function updateUIForAuthenticatedUser() {
     const activeTab = tabs[0];
     document.getElementById('siteTitle').textContent = activeTab.title
     document.getElementById('siteUrl').textContent = activeTab.url
-    document.getElementById('siteFavicon').src = activeTab.favIconUrl || 'assets/default-favicon.png';
+    document.getElementById('siteFavicon').src = activeTab.favIconUrl || 'assets/favicon.svg'
     
     document.getElementById('loginState').classList.add('hidden')
     document.getElementById('saveState').classList.remove('hidden')
