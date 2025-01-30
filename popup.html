@@ -4,7 +4,189 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Openfav</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Base styles */
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px; /* Increased width */
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    /* Header styles */
+    #header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    /* State styles */
+    .state {
+      display: none;
+    }
+
+    .state.active {
+      display: block;
+    }
+
+    /* URL Preview styles */
+    .url-preview {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    .favicon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .url-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ellipsis {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+    }
+
+    /* Environment buttons styles */
+    .environment-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .env-btn {
+      position: relative;
+      padding: 8px 16px;
+      border: 2px solid #ddd;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .env-btn.active {
+      background: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
+
+    /* Checkbox groups styles */
+    .checkbox-group {
+      margin-top: 1rem;
+      background: #fff;
+      border-radius: 4px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .checkbox-group h4 {
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .checkbox-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .checkbox-item {
+      padding: 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .checkbox-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      margin-right: 8px;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Button styles */
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0056b3;
+    }
+
+    /* Loading state styles */
+    .loader {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Success state styles */
+    .success-icon {
+      width: 48px;
+      height: 48px;
+      line-height: 48px;
+      text-align: center;
+      background: #28a745;
+      color: white;
+      border-radius: 50%;
+      margin: 1rem auto;
+      font-size: 1.5rem;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -14,18 +196,8 @@
     </div>
 
     <div id="content">
-      <!-- Login State -->
-      <div id="loginState" class="state hidden">
-        <h2>Welcome to OpenFavs</h2>
-        <p>Please login to save your favorite websites</p>
-        <button id="loginButton" class="btn btn-primary">
-          <span class="icon">👤</span>
-          Login
-        </button>
-      </div>
-
       <!-- Save State -->
-      <div id="saveState" class="state hidden">
+      <div id="saveState" class="state active">
         <div class="url-preview">
           <img id="siteFavicon" class="favicon" src="/assets/favicon.svg" alt="Site Icon">
           <div class="url-info">
@@ -41,22 +213,35 @@
               <span class="icon">🚀</span>
               Production
             </button>
-            <button class="env-btn" data-env="develop">
+            <button class="env-btn" data-env="development">
               <span class="icon">⚙️</span>
-              Develop
+              Development
             </button>
-            <button class="env-btn" data-env="test">
-              <span class="icon">🧪</span>
-              Test
+            <button class="env-btn" data-env="personal">
+              <span class="icon">👤</span>
+              Personal
+            </button>
+            <button class="env-btn" data-env="portfolio">
+              <span class="icon">📂</span>
+              Portfolio
             </button>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="category">Category</label>
-          <select id="category" class="select">
-            <option value="">Select a category...</option>
-          </select>
+        <!-- Resource Types -->
+        <div class="checkbox-group" id="resourceTypesGroup">
+          <h4>Resource Types</h4>
+          <div class="checkbox-container" id="resourceTypes">
+            <!-- Dynamically populated based on selected environment -->
+          </div>
+        </div>
+
+        <!-- Function Types -->
+        <div class="checkbox-group" id="functionTypesGroup">
+          <h4>Function Types</h4>
+          <div class="checkbox-container" id="functionTypes">
+            <!-- Dynamically populated based on selected environment -->
+          </div>
         </div>
 
         <button id="saveButton" class="btn btn-primary">
@@ -72,13 +257,14 @@
       </div>
 
       <!-- Success State -->
-      <div id="successState" class="state hidden">
+      <div id="successState" class="state">
         <div class="success-icon">✓</div>
         <h2>Website Saved!</h2>
         <p>Your website has been successfully saved</p>
       </div>
     </div>
   </div>
-  <script type="module" src="popup.js"></script>
+
+  <script src="popupV4.js"></script>
 </body>
 </html>
